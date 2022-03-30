@@ -1,0 +1,3 @@
+#!/bin/bash
+echo $PATH
+chmod 755 0-current_working_directory
