@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# a bash script that list the content of a file
+# by it's name, id and path
+
+while read l
+do
+    paste -d: <(echo "$l" | cut -d ":" -f1) <(echo "$l" | cut -d ":" -f4) <(echo "$l" | cut -d ":" -f6)
+done < "/etc/passwd"
