@@ -2,7 +2,7 @@
 # a bash script that list the content of a file
 # by it's name, id and path
 
-while read l
+while read -r LINE
 do
-    paste -d: <(echo "$l" | cut -d ":" -f1) <(echo "$l" | cut -d ":" -f4) <(echo "$l" | cut -d ":" -f6)
+    echo "$LINE" | cut -d ":" -f 1,3,6
 done < "/etc/passwd"
