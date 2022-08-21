@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # A shell script that dislays `To infinity and beyond` infinitly unless killed
 
-while [ true ]
+while [ 'true' ]
 do
 	echo To infinity and beyond
 	sleep 2
