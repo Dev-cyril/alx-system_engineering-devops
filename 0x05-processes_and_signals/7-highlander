@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# A script that displays endlessly so text and another between sleep upon receiving a SIGTERM signal
+
+trap 'echo "I am invincible!!!"' SIGTERM
+while true
+do
+    echo "To infinity and beyond"
+    sleep 2
+done

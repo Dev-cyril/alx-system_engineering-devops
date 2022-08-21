@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# A shell script that displays PID wuthous usinf ps command
+
+pgrep -l "bash"
