@@ -1,2 +1,2 @@
 #!/usr/bin/env ruby
-puts ARGV[0].scan(/.\S[0-9_]{10}/)
+puts ARGV[0].scan(/^\d{10}$/)
