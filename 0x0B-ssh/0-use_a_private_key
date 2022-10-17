@@ -1,4 +1,4 @@
 #!/usr/bin/env bash 
 # A script that uses ssh to connect to a server using a private key.
 
-sudo ssh -i ~/.ssh/school ubuntu@3.226.122.51
+sudo ssh -i ~/.ssh/school ubuntu@18.206.16.213
