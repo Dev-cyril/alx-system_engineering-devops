@@ -1,4 +1,4 @@
-#!usr/bin/python3
+#!/usr/bin/python3
 
 """A module that exports data from an API to a JSON file."""
 
