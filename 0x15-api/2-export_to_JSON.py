@@ -1,24 +1,23 @@
 #!/usr/bin/python3
-
-"""A module that exports data from an API to a JSON file."""
-
-import json
-import requests
-import sys
-
+"""Given employee ID, return information about TODO list progress"""
 
 if __name__ == '__main__':
-    """dumps a dictionary and write into a json file"""
 
-    userData = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                            .format(sys.argv[1])).json()
-    todo = requests.get('https://jsonplaceholder.typicode.com/todos/',
-                        params={"userId": sys.argv[1]}).json()
+    import json
+    import requests
+    from sys import argv
 
-    dic = {sys.argv[1]: [
-        {'task': t['title'], 'completed': t['completed'],
-            'username': userData['username']} for t in todo]
-    }
-    obj = json.dumps(dic)
-    with open('{}.json'.format(sys.argv[1]), "w") as file:
-        file.write(obj)
+    f_name = argv[1] + ".json"
+    user = requests.get("https://jsonplaceholder.typicode.com/users/{}"
+                        .format(argv[1]))
+    name = user.json()
+    req = requests.get("https://jsonplaceholder.typicode.com/todos?userId={}"
+                       .format(argv[1]))
+    todos = req.json()
+
+    with open(f_name, 'w', newline='') as f:
+        tasks = [dict(task=todo['title'], completed=todo['completed'],
+                 username=name['username']) for todo in todos]
+        d = {}
+        d[argv[1]] = tasks
+        f.write(json.dumps(d))

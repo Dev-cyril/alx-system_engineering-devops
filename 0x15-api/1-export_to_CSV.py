@@ -1,23 +1,22 @@
 #!/usr/bin/python3
-
-"""A module that exports data from an API to a CSV file."""
+"""Given employee ID, returns information about TODO list progress"""
 
 import csv
 import requests
-import sys
+from sys import argv
 
+if __name__ == "__main__":
 
-if __name__ == '__main__':
-    """exports  a dictionary to a csv file"""
+    f_name = argv[1] + ".csv"
+    user = requests.get("https://jsonplaceholder.typicode.com/users/{}"
+                        .format(argv[1]))
+    name = user.json()
+    req = requests.get("https://jsonplaceholder.typicode.com/todos?userId={}"
+                       .format(argv[1]))
+    todos = req.json()
 
-    userData = requests.get('https://jsonplaceholder.typicode.com/users/{}'.
-                            format(sys.argv[1])).json()
-    todo = requests.get('https://jsonplaceholder.typicode.com/todos/',
-                        params={"userId": sys.argv[1]}).json()
-
-    with open('{}.csv'.format(sys.argv[1]), "w", newline="") as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        [writer.writerow(
-            [sys.argv[1], userData['username'],
-                t.get("completed"), t.get("title")]
-         ) for t in todo]
+    with open(f_name, 'w', newline='') as f:
+        w = csv.writer(f, quoting=csv.QUOTE_ALL)
+        for todo in todos:
+            w.writerow([name['id'], name['username'], todo['completed'],
+                        todo['title']])

@@ -1,26 +1,21 @@
 #!/usr/bin/python3
-
-"""A module that exports data from an API to a JSON file."""
-
-import json
-import requests
-
+"""Given employee ID, returns information about TODO list progress"""
 
 if __name__ == '__main__':
-    """dumps a dictionary and write into a json file"""
+    from requests import get
+    import json
 
-    userData = requests.get(
-        'https://jsonplaceholder.typicode.com/users/').json()
+    d = {}
+    for user_id in range(1, 11):
+        user = get("https://jsonplaceholder.typicode.com/users/{}"
+                   .format(user_id))
+        name = user.json()
+        req = get("https://jsonplaceholder.typicode.com/todos?userId={}"
+                  .format(user_id))
+        todos = req.json()
 
-    dic = {
-        u['id']: [
-                    {'task': t['title'],
-                        'completed': t['completed'],
-                        'username': u['username']}
-                    for t in requests.get(
-                        'https://jsonplaceholder.typicode.com/todos/',
-                        params={"userId": u['id']}).json()]
-        for u in userData
-    }
-    with open('todo_all_employees.json', "w") as file:
-        json.dump(dic, file)
+        d[user_id] = [dict(task=todo['title'], completed=todo['completed'],
+                           username=name['username']) for todo in todos]
+
+        with open('todo_all_employees.json', 'w') as f:
+            f.write(json.dumps(d))
