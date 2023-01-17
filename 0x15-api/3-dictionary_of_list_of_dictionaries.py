@@ -1,21 +1,18 @@
 #!/usr/bin/python3
-"""Given employee ID, returns information about TODO list progress"""
+"""Exports to-do list information of all employees to JSON format."""
+import json
+import requests
 
-if __name__ == '__main__':
-    from requests import get
-    import json
+if __name__ == "__main__":
+    url = "https://jsonplaceholder.typicode.com/"
+    users = requests.get(url + "users").json()
 
-    d = {}
-    for user_id in range(1, 11):
-        user = get("https://jsonplaceholder.typicode.com/users/{}"
-                   .format(user_id))
-        name = user.json()
-        req = get("https://jsonplaceholder.typicode.com/todos?userId={}"
-                  .format(user_id))
-        todos = req.json()
-
-        d[user_id] = [dict(task=todo['title'], completed=todo['completed'],
-                           username=name['username']) for todo in todos]
-
-        with open('todo_all_employees.json', 'w') as f:
-            f.write(json.dumps(d))
+    with open("todo_all_employees.json", "w") as jsonfile:
+        json.dump({
+            u.get("id"): [{
+                "task": t.get("title"),
+                "completed": t.get("completed"),
+                "username": u.get("username")
+            } for t in requests.get(url + "todos",
+                                    params={"userId": u.get("id")}).json()]
+            for u in users}, jsonfile)
