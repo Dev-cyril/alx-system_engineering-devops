@@ -1,29 +1,59 @@
 #!/usr/bin/env bash
-# Configure Nginx so that its HTTP response contains
-# a custom header
-#
-balancer="\
-frontend haproxy_balancer
-    bind *:80
-    mode http
-    default_backend webservers
-    
-backend webservers
-    balance roundrobin
-    server 45669-web-01 18.206.16.213:80 check
-    server 45669-web-02 34.207.221.188:80 check
-"
-# Update packages
-apt-get -y update
-apt-get -y upgrade
-
-# Add HAProxy PPA
-apt-get -y install software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-2.5
-apt-get -y update
-
-# Install HAProxy
+# script that configure the load balancer
+# installs load balancer
+apt-get update
+apt-get -y install --no-install-recommends software-properties-common
+add-apt-repository -y ppa:vbernat/haproxy-2.6
 apt-get -y install haproxy
-cp -a /etc/haproxy/haproxy.cfg{,.orig}
-echo "$balancer" >> /etc/haproxy/haproxy.cfg
-service haproxy restart
+
+# configure the load balancer
+DOMAIN='st-pardon.tech'
+INITIALIZATION='/etc/default/haproxy'
+CONFIG='/etc/haproxy/haproxy.cfg'
+LB_CONFIG=\
+"
+#--$DOMAIN-params-begin--
+backend $DOMAIN-backend
+	balance roundrobin
+	server web1 34.232.80.156:80 check
+	server web2 100.26.49.12:80 check
+frontend $DOMAIN-frontend
+	bind *:80
+	mode http
+	default_backend $DOMAIN-backend
+#--$DOMAIN-params-end--
+"
+
+[ -f "$INITIALIZATION" ] || touch "$INITIALIZATION"
+[ -f "$CONFIG" ] || touch "$CONFIG"
+
+CONFIG_WORDS=$(grep -Eco "$DOMAIN-backend" < $CONFIG)
+
+if [ "$(grep -Eco '^ENABLED=[01]$' < $INITIALIZATION)" -gt 0 ]; then
+	sed -i 's/^ENABLED=0$/ENABLED=1/' "$INITIALIZATION"
+else
+	echo 'ENABLED=1' >> $INITIALIZATION
+fi
+
+if [ "$CONFIG_WORDS" -eq 0 ]; then
+	echo -e "$LB_CONFIG" >> $CONFIG
+else
+	start_tkn="#--$DOMAIN-params-begin--"
+	end_tkn="#--$DOMAIN-params-end--"
+	a=$(grep -onE "$start_tkn" < "$CONFIG" | cut -d : -f1)
+	b=$(grep -onE "$end_tkn" < "$CONFIG" | cut -d : -f1)
+	a=$((a - 1))
+	b=$((b + 1))
+	sed -i "$a,$b"d "$CONFIG"
+	echo -en "$LB_CONFIG" >> $CONFIG
+fi
+
+if [ "$(pgrep -c haproxy)" -le 0 ]; then
+	service haproxy start
+else
+	service haproxy restart
+fi
+
+
+#  server 45669-web-01 18.206.16.213:80 check
+# server 45669-web-02 34.207.221.188:80 check
