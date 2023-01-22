@@ -1,11 +1,6 @@
-apt -y update
-apt install ufw
-ufw disable
-ufw reset
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow ssh
-ufw allow http
-ufw allow https
-ufw enable
-service ufw start
+sudo ufw default deny incoming
+sudo ufw allow 22/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 80/tcp
+sudo ufw enable
+sudo ufw reloads
